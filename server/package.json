@@ -15,8 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:prod": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:validate": "prisma validate",
-    "db:seed": "tsx src/utils/seed.ts"
+    "db:validate": "prisma validate"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",

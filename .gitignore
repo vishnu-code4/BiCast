@@ -3,23 +3,26 @@ node_modules/
 .pnp
 .pnp.js
 
-# Environment files
+# Environment & Secret files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+.env*.local
+!.env.example
 
-# Build outputs
+# Build outputs & caches
 dist/
 build/
+client/dist/
+server/dist/
 *.tsbuildinfo
+.cache/
+.eslintcache
 
-# Prisma
+# Prisma SQLite local files (if used locally)
 prisma/*.db
 prisma/*.db-journal
 
-# Logs
+# Logs & debugging
 logs/
 *.log
 npm-debug.log*
@@ -27,7 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# OS files
+# OS & System files
 .DS_Store
 .DS_Store?
 ._*
@@ -35,9 +38,11 @@ lerna-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+[Dd]esktop.ini
 
-# IDE
-.vscode/settings.json
+# IDE & Editor configuration
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.suo
 *.ntvs*
@@ -45,9 +50,11 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Testing
+# Testing & Coverage
 coverage/
+.nyc_output/
 
-# Misc
-.cache/
-.eslintcache
+# Temporary / Scratch files
+*.tmp
+*.bak
+*~
