@@ -1,0 +1,47 @@
+[
+  {
+    "id": "trip_1aa61a5e-360",
+    "userId": null,
+    "name": "Bengaluru to Nandi Hills Sunrise Ride",
+    "status": "PLANNED",
+    "startLocation": {
+      "name": "Indiranagar, Bengaluru",
+      "latitude": 12.9784,
+      "longitude": 77.6408
+    },
+    "destination": {
+      "name": "Nandi Hills Viewpoint",
+      "latitude": 13.3702,
+      "longitude": 77.6835
+    },
+    "stops": [
+      {
+        "id": "stop_3f147c33-2",
+        "sequence": 1,
+        "name": "Hebbal Fuel Stop",
+        "latitude": 13.0358,
+        "longitude": 77.597,
+        "userDefined": true,
+        "source": "place"
+      }
+    ],
+    "journeyDate": "2026-10-18",
+    "departureTime": "05:00",
+    "timezone": "Asia/Kolkata",
+    "fuelConfig": {
+      "mileageKmPerLitre": 38,
+      "fuelPricePerLitre": 103,
+      "currentFuelLitres": 8,
+      "reserveLitres": 1.5
+    },
+    "lastCalculatedAt": null,
+    "routePolyline": null,
+    "createdAt": "2026-09-10T10:54:09.124Z",
+    "updatedAt": "2026-09-10T10:54:09.124Z",
+    "freshness": {
+      "isFresh": false,
+      "status": "UNPROCESSED",
+      "reason": "Trip has not been calculated yet."
+    }
+  }
+]

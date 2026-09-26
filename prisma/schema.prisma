@@ -1,0 +1,286 @@
+// ============================================================
+// BiCAST Prisma Schema
+// Database: PostgreSQL
+// ORM: Prisma
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum RiskLevel {
+  LOW
+  MODERATE
+  HIGH
+  EXTREME
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  DANGER
+  CRITICAL
+}
+
+enum AlertType {
+  RAIN
+  HEAVY_RAIN
+  THUNDERSTORM
+  FOG
+  STRONG_WIND
+  EXTREME_HEAT
+  EXTREME_COLD
+  HAIL
+  SNOW
+  POOR_VISIBILITY
+  GENERAL
+}
+
+enum StopType {
+  ORIGIN
+  CHECKPOINT
+  WAYPOINT
+  FUEL_STOP
+  REST_STOP
+  DESTINATION
+}
+
+enum WeatherSource {
+  OPEN_METEO
+  OPENWEATHERMAP
+  GOOGLE_WEATHER
+}
+
+enum PlaceCategory {
+  FUEL_STATION
+  HOSPITAL
+  RESTAURANT
+  HOTEL
+  POLICE_STATION
+  MECHANIC
+  ATM
+  PHARMACY
+  VIEWPOINT
+  GENERAL
+}
+
+enum TripStatus {
+  DRAFT
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================================
+// Models
+// ============================================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trips        Trip[]
+  savedPlaces  SavedPlace[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Trip {
+  id          String     @id @default(cuid())
+  userId      String?
+  name        String     @default("Untitled Trip")
+  status      TripStatus @default(DRAFT)
+
+  // Location
+  startName   String
+  startLat    Float
+  startLng    Float
+  endName     String
+  endLat      Float
+  endLng      Float
+
+  // Schedule
+  departureDate     DateTime
+  departureTime     String   // HH:MM format
+  timezone          String   @default("Asia/Kolkata")
+
+  // Route metadata
+  distanceMeters    Float?
+  durationSeconds   Int?
+  estimatedArrival  DateTime?
+  routePolyline     String?  // encoded polyline or GeoJSON string
+
+  // Risk assessment
+  safetyScore       Float?   // 0-100
+  riskLevel         RiskLevel?
+  riskSummary       String?
+
+  // Fuel configuration (user input)
+  mileageKmPerLitre       Float?
+  fuelPricePerLitre       Float?
+  currentFuelLitres       Float?
+  fuelTankCapacityLitres  Float?
+  reserveLitres           Float?
+
+  // Calculated Snapshots (decoupled from persistent configuration)
+  lastCalculatedAt        DateTime?
+  selectedRouteId         String?
+  routeSnapshot           Json?
+  weatherSnapshotSummary  Json?
+  riskSnapshot            Json?
+  fuelSnapshot            Json?
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  // Relations
+  user             User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  stops            TripStop[]
+  weatherSnapshots WeatherSnapshot[]
+  weatherAlerts    WeatherAlert[]
+
+  @@index([userId])
+  @@index([departureDate])
+  @@index([status])
+  @@index([createdAt])
+  @@map("trips")
+}
+
+model TripStop {
+  id       String   @id @default(cuid())
+  tripId   String
+  sequence Int      // order of stops along the route
+
+  name              String
+  lat               Float
+  lng               Float
+  placeId           String?
+  userDefined       Boolean  @default(true)
+  source            String?  @default("manual") // "manual" | "place"
+  stopType          StopType @default(WAYPOINT)
+  estimatedArrival  DateTime?
+  distanceFromStart Float?   // metres from trip origin
+
+  // Relations
+  trip             Trip              @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  weatherSnapshots WeatherSnapshot[]
+
+  @@unique([tripId, sequence])
+  @@index([tripId])
+  @@map("trip_stops")
+}
+
+model WeatherSnapshot {
+  id         String   @id @default(cuid())
+  tripId     String
+  stopId     String?
+
+  // Location where forecast was taken
+  lat        Float
+  lng        Float
+
+  // The specific time the forecast is for (matches expected arrival)
+  forecastAt DateTime
+
+  // Weather data
+  temperatureC         Float?
+  feelsLikeC           Float?
+  precipitationMm      Float?
+  precipitationProbPct Float?  // 0-100
+  windSpeedKmh         Float?
+  windDirectionDeg     Float?
+  humidityPct          Float?  // 0-100
+  visibilityKm         Float?
+  weatherCode          Int?    // WMO weather code
+  weatherCondition     String? // human-readable description
+  uvIndex              Float?
+  cloudCoverPct        Float?
+
+  // Metadata
+  source     WeatherSource @default(OPEN_METEO)
+  fetchedAt  DateTime      @default(now())
+
+  // Relations
+  trip Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  stop TripStop? @relation(fields: [stopId], references: [id], onDelete: SetNull)
+
+  @@index([tripId])
+  @@index([stopId])
+  @@index([forecastAt])
+  @@map("weather_snapshots")
+}
+
+model WeatherAlert {
+  id     String @id @default(cuid())
+  tripId String
+
+  // Alert location
+  locationName String?
+  lat          Float
+  lng          Float
+
+  // Timing
+  alertTime DateTime // when the rider will be at this location
+
+  // Alert details
+  severity       AlertSeverity
+  alertType      AlertType
+  title          String
+  message        String
+  recommendation String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([severity])
+  @@index([alertTime])
+  @@map("weather_alerts")
+}
+
+model SavedPlace {
+  id     String @id @default(cuid())
+  userId String
+
+  // Provider reference
+  providerPlaceId String?
+  placeSource     String? // e.g. "overpass", "google"
+
+  // Place details
+  name     String
+  category PlaceCategory @default(GENERAL)
+  lat      Float
+  lng      Float
+  address  String?
+  notes    String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([category])
+  @@map("saved_places")
+}
