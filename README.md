@@ -321,4 +321,4 @@ See [`docs/architecture.md`](docs/architecture.md) for the full system architect
 
 ## 📄 License
 
-MIT — MCA Mini-Project by [Your Name]
+MIT — MCA Mini-Project by Vishnu S R

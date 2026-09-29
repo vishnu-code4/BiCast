@@ -5,7 +5,8 @@
 // ============================================================
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const BASE_URL = '/api';
+const BASE_URL =
+  (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL || '/api';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
