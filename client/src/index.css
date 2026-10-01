@@ -14,11 +14,13 @@
   html {
     @apply antialiased;
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-surface-900 text-white font-sans;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   * {
@@ -99,3 +101,12 @@
 /* Leaflet z-index fixes */
 .leaflet-pane { z-index: 1 !important; }
 .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
+
+/* Mobile scrollbar helpers */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

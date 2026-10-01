@@ -164,8 +164,8 @@ export default function RouteSummaryCard({
 
       {/* Main Active Route Summary Card */}
       <div className="glass rounded-2xl p-5 border border-white/15 space-y-4">
-        <div className="flex items-start justify-between border-b border-white/10 pb-4">
-          <div>
+        <div className="flex items-start justify-between flex-wrap gap-3 border-b border-white/10 pb-4">
+          <div className="min-w-0 flex-1">
             <span className="text-[11px] font-bold text-brand-400 uppercase tracking-wider">
               {routes.length > 1 && routes[0]?.id === activeRoute.id ? 'Recommended Route' : 'Selected Route'}
             </span>
@@ -175,20 +175,22 @@ export default function RouteSummaryCard({
             )}
           </div>
 
-          <div className="text-right">
-            <span className="text-2xl font-black text-brand-400">
-              {(activeRoute.distanceMeters / 1000).toFixed(0)}
-              <span className="text-sm font-normal text-white/60 ml-1">km</span>
-            </span>
-            <p className="text-[11px] text-white/50">{formatDate(activeRoute.departureTime)}</p>
-          </div>
+          <div className="flex items-start gap-4 flex-wrap shrink-0">
+            <div className="text-right">
+              <span className="text-2xl font-black text-brand-400">
+                {(activeRoute.distanceMeters / 1000).toFixed(0)}
+                <span className="text-sm font-normal text-white/60 ml-1">km</span>
+              </span>
+              <p className="text-[11px] text-white/50">{formatDate(activeRoute.departureTime)}</p>
+            </div>
 
-          <div className="text-right">
-            <p className="text-white/40 uppercase tracking-wider text-[10px]">Estimated Arrival</p>
-            <p className="text-base font-bold text-emerald-400 mt-0.5">
-              {formatTime(activeRoute.arrivalTime)}
-            </p>
-            <p className="text-[11px] text-white/50">{formatDate(activeRoute.arrivalTime)}</p>
+            <div className="text-right">
+              <p className="text-white/40 uppercase tracking-wider text-[10px]">Estimated Arrival</p>
+              <p className="text-base font-bold text-emerald-400 mt-0.5">
+                {formatTime(activeRoute.arrivalTime)}
+              </p>
+              <p className="text-[11px] text-white/50">{formatDate(activeRoute.arrivalTime)}</p>
+            </div>
           </div>
         </div>
 

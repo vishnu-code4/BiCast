@@ -116,8 +116,8 @@ export default function TripHistoryPage() {
       )}
 
       {/* Filter Tabs */}
-      <div className="glass rounded-2xl p-3 border border-white/10 flex items-center justify-between gap-3 overflow-x-auto">
-        <div className="flex items-center gap-1.5">
+      <div className="glass rounded-2xl p-3 border border-white/10 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 min-w-max">
           {(['ALL', 'COMPLETED', 'PLANNED', 'CANCELLED'] as const).map((st) => (
             <button
               key={st}

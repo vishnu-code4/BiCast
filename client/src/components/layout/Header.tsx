@@ -1,9 +1,11 @@
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Bike, Map, Clock, ChevronRight, Bookmark } from 'lucide-react';
+import { Bike, Map, Clock, ChevronRight, Bookmark, Menu, X } from 'lucide-react';
 import ApiStatusBadge from '@/components/ui/ApiStatusBadge';
 
 export default function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-surface-900/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,7 +29,7 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Nav */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
             <NavItem to="/" icon={<ChevronRight size={14} />} label="Home" end />
             <NavItem to="/plan" icon={<Map size={14} />} label="Plan a Ride" />
@@ -35,7 +37,7 @@ export default function Header() {
             <NavItem to="/history" icon={<Clock size={14} />} label="History" />
           </nav>
 
-          {/* API status */}
+          {/* Right controls */}
           <div className="flex items-center gap-3">
             <ApiStatusBadge />
             <Link
@@ -46,9 +48,56 @@ export default function Header() {
               Plan a Ride
               <ChevronRight size={16} />
             </Link>
+
+            {/* Mobile hamburger */}
+            <button
+              id="header-mobile-menu-btn"
+              onClick={() => setMobileOpen((o) => !o)}
+              className="md:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <nav
+          className="md:hidden border-t border-white/10 bg-surface-900/95 backdrop-blur-xl animate-fade-in"
+          aria-label="Mobile navigation"
+        >
+          <div className="px-4 py-3 space-y-1">
+            <MobileNavItem
+              to="/"
+              icon={<ChevronRight size={16} />}
+              label="Home"
+              end
+              onClose={() => setMobileOpen(false)}
+            />
+            <MobileNavItem
+              to="/plan"
+              icon={<Map size={16} />}
+              label="Plan a Ride"
+              onClose={() => setMobileOpen(false)}
+            />
+            <MobileNavItem
+              to="/saved-trips"
+              icon={<Bookmark size={16} />}
+              label="Saved Trips"
+              onClose={() => setMobileOpen(false)}
+            />
+            <MobileNavItem
+              to="/history"
+              icon={<Clock size={16} />}
+              label="History"
+              onClose={() => setMobileOpen(false)}
+            />
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
@@ -73,6 +122,38 @@ function NavItem({
         ${isActive
           ? 'bg-brand-500/15 text-brand-400'
           : 'text-white/60 hover:text-white hover:bg-white/5'
+        }`
+      }
+    >
+      {icon}
+      {label}
+    </NavLink>
+  );
+}
+
+function MobileNavItem({
+  to,
+  icon,
+  label,
+  end,
+  onClose,
+}: {
+  to: string;
+  icon: ReactNode;
+  label: string;
+  end?: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      onClick={onClose}
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200
+        ${isActive
+          ? 'bg-brand-500/15 text-brand-400'
+          : 'text-white/70 hover:text-white hover:bg-white/5'
         }`
       }
     >

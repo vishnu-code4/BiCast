@@ -25,7 +25,7 @@ export default function FuelStationRecommendationCard({
 
   return (
     <div className="glass rounded-2xl p-4 border border-white/10 space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-1">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
             <Fuel size={15} />

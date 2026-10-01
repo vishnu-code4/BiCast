@@ -26,7 +26,7 @@ export default function HomePage() {
             </div>
 
             {/* Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight
                            text-white mb-6 animate-slide-up">
               Ride smarter with
               <br />
@@ -192,7 +192,7 @@ export default function HomePage() {
 
       {/* CTA Footer */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="glass rounded-3xl p-12 text-center bg-gradient-to-br from-brand-500/10 to-surface-800/50">
+        <div className="glass rounded-3xl p-6 sm:p-12 text-center bg-gradient-to-br from-brand-500/10 to-surface-800/50">
           <Bike size={48} className="text-brand-400 mx-auto mb-6" />
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready for your next ride?

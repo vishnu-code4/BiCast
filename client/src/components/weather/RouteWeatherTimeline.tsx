@@ -290,12 +290,12 @@ export default function RouteWeatherTimeline({
                     const cpFuel = checkpointFuelEstimates?.find((f) => f.checkpointId === point.pointId);
                     if (!cpFuel) return null;
                     return (
-                      <div className="p-2 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between text-[11px]">
+                      <div className="p-2 rounded-lg bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px]">
                         <span className="text-white/60 flex items-center gap-1.5">
                           <span>⛽</span>
                           <span>Distance: <strong className="text-white">{cpFuel.distanceFromStartKm} km</strong></span>
                         </span>
-                        <div className="flex items-center gap-3 text-right">
+                        <div className="flex items-center gap-3 text-right flex-wrap">
                           <span className="text-white/60">Consumed: <strong className="text-white">{cpFuel.estimatedFuelConsumedLitres} L</strong></span>
                           {cpFuel.estimatedRemainingFuelLitres != null && (
                             <span className="text-amber-300 font-semibold">Remaining: ~{cpFuel.estimatedRemainingFuelLitres} L</span>

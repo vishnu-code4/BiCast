@@ -419,7 +419,7 @@ export default function PlanTripPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 animate-fade-in min-w-0">
       {/* Header */}
       <div className="mb-8">
         <p className="section-label mb-2">Route Planning Engine</p>
@@ -443,9 +443,9 @@ export default function PlanTripPage() {
         </div>
       )}
 
-      <div className="grid lg:grid-cols-12 gap-8 items-start">
+      <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Column: Form & Route Summaries (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 min-w-0">
           {/* Main Route Locations Form */}
           <div className="glass rounded-2xl p-5 border border-white/10 space-y-4">
             <div className="flex items-center justify-between">
@@ -596,7 +596,7 @@ export default function PlanTripPage() {
               Departure Timing
             </h2>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label htmlFor="dep-date" className="section-label text-[11px]">Journey Date</label>
                 <div className="relative">
@@ -648,7 +648,7 @@ export default function PlanTripPage() {
           )}
 
           {/* Calculate & Save Trip Buttons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button
               id="plan-route-btn"
               disabled={!isReady || planRouteMutation.isPending}
@@ -718,7 +718,7 @@ export default function PlanTripPage() {
         </div>
 
         {/* Right Column: Leaflet Route Map & Places Controls (7 cols) */}
-        <div className="lg:col-span-7 space-y-3 sticky top-24">
+        <div className="lg:col-span-7 space-y-3 lg:sticky lg:top-24 min-w-0">
           {/* Places along route category bar */}
           {routes.length > 0 && (
             <div className="glass rounded-2xl p-3 border border-white/10">
@@ -731,7 +731,7 @@ export default function PlanTripPage() {
             </div>
           )}
 
-          <div className="h-[600px]">
+          <div className="h-[300px] sm:h-[450px] lg:h-[600px]">
             {routes.length > 0 && startLocation && endLocation ? (
               <RouteMap
                 routes={routes}

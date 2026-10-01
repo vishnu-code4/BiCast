@@ -127,7 +127,7 @@ export default function RouteMap({
       <MapContainer
         center={defaultCenter}
         zoom={7}
-        className="w-full h-full min-h-[500px]"
+        className="w-full h-full"
         zoomControl={true}
       >
         <TileLayer

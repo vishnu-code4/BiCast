@@ -125,7 +125,7 @@ export default function TripDetailsPage() {
   const fuelPlan = snapshots?.fuelPlan;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in min-w-0">
       {/* Breadcrumb & Navigation */}
       <div className="flex items-center gap-2 text-xs text-white/40">
         <Link to="/saved-trips" className="hover:text-white transition-colors flex items-center gap-1">
@@ -286,7 +286,7 @@ export default function TripDetailsPage() {
       {/* Grid: 2 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Persistent Configuration & Schedule (5 cols) */}
-        <div className="lg:col-span-5 space-y-5">
+        <div className="lg:col-span-5 space-y-5 min-w-0">
           {/* Schedule & Timing Card */}
           <div className="glass rounded-2xl p-5 border border-white/10 space-y-3.5">
             <div className="flex items-center justify-between">
@@ -486,7 +486,7 @@ export default function TripDetailsPage() {
         </div>
 
         {/* Right Column: Calculated Snapshots (Weather, Risk, Checkpoints) (7 cols) */}
-        <div className="lg:col-span-7 space-y-5">
+        <div className="lg:col-span-7 space-y-5 min-w-0">
           {/* Weather & Safety Risk Snapshot */}
           <div className="glass rounded-2xl p-5 border border-white/10 space-y-4">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -567,15 +567,15 @@ export default function TripDetailsPage() {
                 {activeRoute.checkpoints.map((cp: any) => (
                   <div
                     key={cp.id}
-                    className="p-3 rounded-xl bg-surface-800/60 border border-white/5 flex items-center justify-between text-xs"
+                    className="p-3 rounded-xl bg-surface-800/60 border border-white/5 flex items-center justify-between gap-2 text-xs"
                   >
-                    <div>
-                      <span className="font-semibold text-white block">{cp.name}</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="font-semibold text-white block truncate">{cp.name}</span>
                       <span className="text-[10px] text-white/40">
                         {(cp.distanceFromStartMeters / 1000).toFixed(1)} km from start
                       </span>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       <span className="text-white font-medium block">
                         {cp.estimatedArrivalTime
                           ? new Date(cp.estimatedArrivalTime).toLocaleTimeString([], {
