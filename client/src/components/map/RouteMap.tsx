@@ -1,9 +1,9 @@
 // ============================================================
 // BiCAST Interactive Route Map
 // Leaflet-powered route viewer supporting multiple route alternatives,
-// distinct start/dest/stop/checkpoint markers, and ETA popups
+// distinct start/dest/stop/checkpoint markers, hover Bento Tooltips, and ETA popups
 // ============================================================
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -11,6 +11,7 @@ import {
   Marker,
   Popup,
   useMap,
+  useMapEvents,
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -30,6 +31,7 @@ const createIcon = (html: string, className: string = '', size: [number, number]
     iconSize: size,
     iconAnchor: [size[0] / 2, size[1] / 2],
     popupAnchor: [0, -size[1] / 2],
+    tooltipAnchor: [0, -size[1] / 2],
   });
 
 const startIcon = createIcon(
@@ -72,6 +74,14 @@ function MapBoundsUpdater({ bounds }: { bounds: L.LatLngBoundsExpression | null 
   return null;
 }
 
+// Helper component to clear pinned popup when clicking empty map canvas
+function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
+  useMapEvents({
+    click: () => onMapClick(),
+  });
+  return null;
+}
+
 interface RouteMapProps {
   routes: PlannedRoute[];
   selectedRouteId: string;
@@ -98,6 +108,8 @@ export default function RouteMap({
   onAddPlaceAsStop,
 }: RouteMapProps) {
   const selectedRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
+
+  const [pinnedMarkerId, setPinnedMarkerId] = useState<string | null>(null);
 
   // Calculate bounding box for all points on active route
   const mapBounds: L.LatLngBoundsExpression | null = React.useMemo(() => {
@@ -130,6 +142,7 @@ export default function RouteMap({
         className="w-full h-full"
         zoomControl={true}
       >
+        <MapClickHandler onMapClick={() => setPinnedMarkerId(null)} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -231,49 +244,69 @@ export default function RouteMap({
         )}
 
         {/* 3. Start Marker */}
-        <Marker position={[startLocation.lat, startLocation.lng]} icon={startIcon}>
-          <Popup>
-            <div className="text-xs font-medium text-slate-900">
-              <span className="font-bold text-emerald-600 uppercase text-[10px]">Start Location</span>
-              <p className="mt-0.5">{startLocation.name}</p>
-              {selectedRoute && (
-                <p className="text-slate-500 mt-1">
-                  Departure: {new Date(selectedRoute.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              )}
-              {(() => {
-                const startWeather = weatherTimeline?.points.find((p) => p.pointType === 'START');
-                return startWeather ? (
-                  <div className="mt-2 pt-2 border-t border-slate-200">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                      <span className="flex items-center gap-1">
-                        <span>{getWeatherEmoji(startWeather.weatherCode, startWeather.thunderstorm)}</span>
-                        <span>{Math.round(startWeather.temperature)}°C</span>
-                      </span>
-                      <span className={startWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
-                        {startWeather.precipitationProbability}% Rain
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
-                      {startWeather.weatherCondition} &bull; Wind {Math.round(startWeather.windSpeed)} km/h
+        {(() => {
+          const startWeather = weatherTimeline?.points.find((p) => p.pointType === 'START');
+          return (
+            <Marker
+              position={[startLocation.lat, startLocation.lng]}
+              icon={startIcon}
+              eventHandlers={{
+                mouseover: (e) => e.target.openPopup(),
+                mouseout: (e) => {
+                  if (pinnedMarkerId !== 'start') e.target.closePopup();
+                },
+                click: () => setPinnedMarkerId('start'),
+              }}
+            >
+              <Popup>
+                <div className="text-xs font-medium text-slate-900">
+                  <span className="font-bold text-emerald-600 uppercase text-[10px]">Start Location</span>
+                  <p className="mt-0.5">{startLocation.name}</p>
+                  {selectedRoute && (
+                    <p className="text-slate-500 mt-1">
+                      Departure: {new Date(selectedRoute.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                  </div>
-                ) : null;
-              })()}
-            </div>
-          </Popup>
-        </Marker>
+                  )}
+                  {startWeather && (
+                    <div className="mt-2 pt-2 border-t border-slate-200">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span className="flex items-center gap-1">
+                          <span>{getWeatherEmoji(startWeather.weatherCode, !!startWeather.thunderstorm)}</span>
+                          <span>{Math.round(startWeather.temperature)}°C</span>
+                        </span>
+                        <span className={startWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
+                          {startWeather.precipitationProbability}% Rain
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        {startWeather.weatherCondition} &bull; Wind {Math.round(startWeather.windSpeed)} km/h
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })()}
 
         {/* 4. User Intermediate Stops */}
         {selectedRoute?.stops.map((stop) => {
           const stopWeather = weatherTimeline?.points.find(
             (p) => p.pointType === 'STOP' && p.sequence === stop.sequence,
           );
+          const stopMarkerId = `stop-${stop.id}`;
           return (
             <Marker
-              key={`stop-${stop.id}`}
+              key={stopMarkerId}
               position={[stop.latitude, stop.longitude]}
               icon={createStopIcon(stop.sequence)}
+              eventHandlers={{
+                mouseover: (e) => e.target.openPopup(),
+                mouseout: (e) => {
+                  if (pinnedMarkerId !== stopMarkerId) e.target.closePopup();
+                },
+                click: () => setPinnedMarkerId(stopMarkerId),
+              }}
             >
               <Popup>
                 <div className="text-xs font-medium text-slate-900">
@@ -288,7 +321,7 @@ export default function RouteMap({
                     <div className="mt-2 pt-2 border-t border-slate-200">
                       <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                         <span className="flex items-center gap-1">
-                          <span>{getWeatherEmoji(stopWeather.weatherCode, stopWeather.thunderstorm)}</span>
+                          <span>{getWeatherEmoji(stopWeather.weatherCode, !!stopWeather.thunderstorm)}</span>
                           <span>{Math.round(stopWeather.temperature)}°C</span>
                         </span>
                         <span className={stopWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
@@ -309,11 +342,21 @@ export default function RouteMap({
         {/* 5. Smart Travel-Time Checkpoints */}
         {selectedRoute?.checkpoints.map((cp) => {
           const cpWeather = weatherTimeline?.points.find((p) => p.pointId === cp.id);
+          const cpRisk = riskAnalysis?.checkpoints.find((c) => c.checkpointId === cp.id);
+          const cpMarkerId = `cp-${cp.id}`;
+
           return (
             <Marker
-              key={`cp-${cp.id}`}
+              key={cpMarkerId}
               position={[cp.latitude, cp.longitude]}
               icon={createCheckpointIcon(cp.sequence)}
+              eventHandlers={{
+                mouseover: (e) => e.target.openPopup(),
+                mouseout: (e) => {
+                  if (pinnedMarkerId !== cpMarkerId) e.target.closePopup();
+                },
+                click: () => setPinnedMarkerId(cpMarkerId),
+              }}
             >
               <Popup>
                 <div className="text-xs font-medium text-slate-900">
@@ -329,7 +372,7 @@ export default function RouteMap({
                     <div className="mt-2 pt-2 border-t border-slate-200">
                       <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                         <span className="flex items-center gap-1">
-                          <span>{getWeatherEmoji(cpWeather.weatherCode, cpWeather.thunderstorm)}</span>
+                          <span>{getWeatherEmoji(cpWeather.weatherCode, !!cpWeather.thunderstorm)}</span>
                           <span>{Math.round(cpWeather.temperature)}°C</span>
                         </span>
                         <span className={cpWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
@@ -342,27 +385,24 @@ export default function RouteMap({
                       <p className="text-[9px] text-slate-400 mt-0.5">
                         Forecast matched for ~{new Date(cpWeather.forecastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
-                      {(() => {
-                        const cpRisk = riskAnalysis?.checkpoints.find((c) => c.checkpointId === cp.id);
-                        return cpRisk ? (
-                          <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-500 font-semibold">Safety Score</span>
-                            <span
-                              className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                                cpRisk.level === 'GREEN'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : cpRisk.level === 'YELLOW'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : cpRisk.level === 'ORANGE'
-                                  ? 'bg-orange-100 text-orange-800'
-                                  : 'bg-rose-100 text-rose-800'
-                              }`}
-                            >
-                              {cpRisk.score}/100 ({cpRisk.level})
-                            </span>
-                          </div>
-                        ) : null;
-                      })()}
+                      {cpRisk && (
+                        <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
+                          <span className="text-[10px] text-slate-500 font-semibold">Safety Score</span>
+                          <span
+                            className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                              cpRisk.level === 'GREEN'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : cpRisk.level === 'YELLOW'
+                                ? 'bg-amber-100 text-amber-800'
+                                : cpRisk.level === 'ORANGE'
+                                ? 'bg-orange-100 text-orange-800'
+                                : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {cpRisk.score}/100 ({cpRisk.level})
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -372,38 +412,50 @@ export default function RouteMap({
         })}
 
         {/* 6. Destination Marker */}
-        <Marker position={[destination.lat, destination.lng]} icon={destIcon}>
-          <Popup>
-            <div className="text-xs font-medium text-slate-900">
-              <span className="font-bold text-rose-600 uppercase text-[10px]">Destination</span>
-              <p className="mt-0.5">{destination.name}</p>
-              {selectedRoute && (
-                <p className="text-slate-500 mt-1">
-                  Arrival ETA: {new Date(selectedRoute.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              )}
-              {(() => {
-                const destWeather = weatherTimeline?.points.find((p) => p.pointType === 'DESTINATION');
-                return destWeather ? (
-                  <div className="mt-2 pt-2 border-t border-slate-200">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                      <span className="flex items-center gap-1">
-                        <span>{getWeatherEmoji(destWeather.weatherCode, destWeather.thunderstorm)}</span>
-                        <span>{Math.round(destWeather.temperature)}°C</span>
-                      </span>
-                      <span className={destWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
-                        {destWeather.precipitationProbability}% Rain
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
-                      {destWeather.weatherCondition} &bull; Wind {Math.round(destWeather.windSpeed)} km/h
+        {(() => {
+          const destWeather = weatherTimeline?.points.find((p) => p.pointType === 'DESTINATION');
+          return (
+            <Marker
+              position={[destination.lat, destination.lng]}
+              icon={destIcon}
+              eventHandlers={{
+                mouseover: (e) => e.target.openPopup(),
+                mouseout: (e) => {
+                  if (pinnedMarkerId !== 'dest') e.target.closePopup();
+                },
+                click: () => setPinnedMarkerId('dest'),
+              }}
+            >
+              <Popup>
+                <div className="text-xs font-medium text-slate-900">
+                  <span className="font-bold text-rose-600 uppercase text-[10px]">Destination</span>
+                  <p className="mt-0.5">{destination.name}</p>
+                  {selectedRoute && (
+                    <p className="text-slate-500 mt-1">
+                      Arrival ETA: {new Date(selectedRoute.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                  </div>
-                ) : null;
-              })()}
-            </div>
-          </Popup>
-        </Marker>
+                  )}
+                  {destWeather && (
+                    <div className="mt-2 pt-2 border-t border-slate-200">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span className="flex items-center gap-1">
+                          <span>{getWeatherEmoji(destWeather.weatherCode, !!destWeather.thunderstorm)}</span>
+                          <span>{Math.round(destWeather.temperature)}°C</span>
+                        </span>
+                        <span className={destWeather.precipitationProbability >= 30 ? 'text-rose-600' : 'text-slate-600'}>
+                          {destWeather.precipitationProbability}% Rain
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        {destWeather.weatherCondition} &bull; Wind {Math.round(destWeather.windSpeed)} km/h
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })()}
 
         {/* 7. Places Along Route Corridor */}
         {places.map((place) => {

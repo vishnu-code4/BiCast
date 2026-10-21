@@ -1,6 +1,7 @@
 // ============================================================
 // BiCAST Trip History Page (/history)
 // Displays historical journeys, lifetime statistics, and status filters
+// Responsive Bento Grid Layout System
 // ============================================================
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -11,6 +12,7 @@ import {
   Calendar,
   TrendingUp,
   Loader2,
+  MapPin,
 } from 'lucide-react';
 import TripCard from '@/components/trips/TripCard';
 import DeleteTripModal from '@/components/trips/DeleteTripModal';
@@ -55,7 +57,7 @@ export default function TripHistoryPage() {
   const stats = data?.stats;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in space-y-8">
+    <div className="page-container py-8 sm:py-10 animate-fade-in space-y-8 min-w-0">
       {/* Header */}
       <div>
         <p className="section-label mb-1.5 flex items-center gap-1.5">
@@ -70,53 +72,98 @@ export default function TripHistoryPage() {
         </p>
       </div>
 
-      {/* Statistics Highlights Row */}
+      {/* Upgraded 4 Statistics Highlights Tiles with Watermark & Bento Styling */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="glass rounded-2xl p-4 border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400">
-              <Bike size={20} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Total Trips */}
+          <div className="bento-tile-interactive p-4 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            {/* Background Icon Watermark */}
+            <div className="absolute -right-3 -bottom-3 text-white/[0.04] group-hover:text-brand-500/[0.08] transition-colors pointer-events-none">
+              <Bike size={80} />
             </div>
-            <div>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">Total Trips</span>
-              <span className="text-lg font-bold text-white">{stats.totalTrips}</span>
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider font-semibold">
+                Total Trips
+              </span>
+              <div className="w-8 h-8 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400">
+                <Bike size={16} />
+              </div>
             </div>
-          </div>
-
-          <div className="glass rounded-2xl p-4 border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <CheckCircle2 size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">Completed</span>
-              <span className="text-lg font-bold text-emerald-400">{stats.completedTrips}</span>
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl p-4 border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Calendar size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">Planned</span>
-              <span className="text-lg font-bold text-amber-400">{stats.plannedTrips}</span>
+            <div className="mt-3 relative z-10">
+              <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                {stats.totalTrips}
+              </span>
+              <span className="text-[11px] text-white/40 block mt-0.5">Rider logbook entries</span>
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-4 border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <TrendingUp size={20} />
+          {/* Completed */}
+          <div className="bento-tile-interactive p-4 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute -right-3 -bottom-3 text-white/[0.04] group-hover:text-emerald-500/[0.08] transition-colors pointer-events-none">
+              <CheckCircle2 size={80} />
             </div>
-            <div>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider block">Total Distance</span>
-              <span className="text-lg font-bold text-blue-400">{stats.totalDistanceKm} km</span>
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider font-semibold">
+                Completed
+              </span>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <CheckCircle2 size={16} />
+              </div>
+            </div>
+            <div className="mt-3 relative z-10">
+              <span className="text-xl sm:text-2xl font-black text-emerald-400 tracking-tight">
+                {stats.completedTrips}
+              </span>
+              <span className="text-[11px] text-white/40 block mt-0.5">Finished journeys</span>
+            </div>
+          </div>
+
+          {/* Planned */}
+          <div className="bento-tile-interactive p-4 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute -right-3 -bottom-3 text-white/[0.04] group-hover:text-amber-500/[0.08] transition-colors pointer-events-none">
+              <Calendar size={80} />
+            </div>
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider font-semibold">
+                Planned
+              </span>
+              <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <Calendar size={16} />
+              </div>
+            </div>
+            <div className="mt-3 relative z-10">
+              <span className="text-xl sm:text-2xl font-black text-amber-300 tracking-tight">
+                {stats.plannedTrips}
+              </span>
+              <span className="text-[11px] text-white/40 block mt-0.5">Upcoming rides</span>
+            </div>
+          </div>
+
+          {/* Total Distance */}
+          <div className="bento-tile-interactive p-4 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute -right-3 -bottom-3 text-white/[0.04] group-hover:text-cyan-500/[0.08] transition-colors pointer-events-none">
+              <TrendingUp size={80} />
+            </div>
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider font-semibold">
+                Total Distance
+              </span>
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <TrendingUp size={16} />
+              </div>
+            </div>
+            <div className="mt-3 relative z-10">
+              <span className="text-xl sm:text-2xl font-black text-cyan-300 tracking-tight">
+                {stats.totalDistanceKm} <span className="text-xs font-normal text-white/50">km</span>
+              </span>
+              <span className="text-[11px] text-white/40 block mt-0.5">Cumulative kilometers</span>
             </div>
           </div>
         </div>
       )}
 
       {/* Filter Tabs */}
-      <div className="glass rounded-2xl p-3 border border-white/10 overflow-x-auto scrollbar-none">
+      <div className="bento-tile p-3 overflow-x-auto scrollbar-none">
         <div className="flex items-center gap-1.5 min-w-max">
           {(['ALL', 'COMPLETED', 'PLANNED', 'CANCELLED'] as const).map((st) => (
             <button
@@ -135,18 +182,18 @@ export default function TripHistoryPage() {
         </div>
       </div>
 
-      {/* History Grid */}
+      {/* History Grid (Responsive 4-column Bento grid with uniform heights) */}
       {isLoading ? (
-        <div className="glass rounded-2xl p-16 text-center">
+        <div className="bento-tile p-16 text-center">
           <Loader2 size={32} className="animate-spin text-brand-400 mx-auto mb-3" />
           <p className="text-white/50 text-sm">Loading history…</p>
         </div>
       ) : isError ? (
-        <div className="glass rounded-2xl p-12 text-center text-rose-400 text-sm">
+        <div className="bento-tile p-12 text-center text-rose-400 text-sm border-rose-500/20">
           Failed to load trip history.
         </div>
       ) : data?.trips && data.trips.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 items-stretch">
           {data.trips.map((trip) => (
             <TripCard
               key={trip.id}
@@ -157,21 +204,27 @@ export default function TripHistoryPage() {
         </div>
       ) : (
         /* Empty State */
-        <div className="glass rounded-2xl p-16 text-center border-dashed border-white/10">
-          <div className="w-16 h-16 rounded-2xl bg-surface-800 flex items-center justify-center mx-auto mb-4 text-white/30">
+        <div className="bento-tile p-16 text-center border-dashed border-white/10">
+          <div className="w-16 h-16 rounded-2xl bg-surface-800 flex items-center justify-center mx-auto mb-4 text-brand-400">
             <Clock size={28} />
           </div>
           <h3 className="text-lg font-bold text-white mb-2">No past journeys recorded</h3>
-          <p className="text-white/40 text-xs sm:text-sm max-w-sm mx-auto mb-6">
-            Completed, planned, and archived trips will appear here as your rider logbook grows.
+          <p className="text-white/40 text-xs sm:text-sm max-w-sm mx-auto mb-6 leading-relaxed">
+            As you plan, complete, or archive rides in BiCAST, they will automatically appear in your rider logbook.
           </p>
-          <Link to="/plan" className="btn-primary inline-flex items-center gap-2 text-xs py-2 px-4">
-            <Bike size={16} /> Plan a Ride
+          <Link
+            to="/plan"
+            id="empty-history-plan-cta"
+            className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-xs font-semibold shadow-bento"
+          >
+            <Bike size={16} />
+            Plan a Journey
+            <MapPin size={14} />
           </Link>
         </div>
       )}
 
-      {/* Delete Modal */}
+      {/* Delete Confirmation Modal */}
       <DeleteTripModal
         isOpen={deleteModalState.isOpen}
         tripName={deleteModalState.name}

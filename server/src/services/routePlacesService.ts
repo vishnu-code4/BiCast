@@ -208,10 +208,10 @@ export class RoutePlacesService {
       route.distanceMeters,
     );
 
-    // 2. Query places provider at sample points (provider has internal caching too)
+    // 2. Query places provider concurrently across all sample points
     const placeMap = new Map<string, Place>();
 
-    for (const sample of samplePoints) {
+    const sampleQueries = samplePoints.map(async (sample) => {
       try {
         const rawResults = await placesProvider.searchNearby({
           lat: sample.lat,
@@ -220,62 +220,68 @@ export class RoutePlacesService {
           categories: categories as PlaceCategory[],
           limit: 15,
         });
-
-        for (const res of rawResults) {
-          if (!placeMap.has(res.placeId)) {
-            const pLat = res.latitude ?? res.lat;
-            const pLng = res.longitude ?? res.lng;
-
-            // Distance from route polyline
-            const distFromRoute = minDistanceToPolyline(pLat, pLng, route.geometry);
-
-            // Filter out places further than corridor radius
-            if (distFromRoute <= corridorRadius) {
-              const estimatedDetourMeters = Math.round(distFromRoute * 2);
-              // Assume 40 km/h in detour/local roads (40,000 m / 3,600 s ≈ 11.1 m/s)
-              const estimatedDetourSeconds = Math.round((estimatedDetourMeters / 1000 / 40) * 3600);
-
-              const rankScore = this.calculatePlaceRank({
-                distanceFromRouteMeters: distFromRoute,
-                rating: res.rating,
-                userRatingCount: res.userRatingCount,
-                openNow: res.openNow ?? res.isOpen,
-                category: res.category,
-                maxCorridorRadius: corridorRadius,
-              });
-
-              // Distance from current sample point
-              const distFromSample = haversineDistanceMetres(sample.lat, sample.lng, pLat, pLng);
-
-              placeMap.set(res.placeId, {
-                placeId: res.placeId,
-                name: res.name,
-                category: res.category,
-                categories: res.categories ?? (res.types ? [...res.types] : [res.category]),
-                latitude: pLat,
-                longitude: pLng,
-                lat: pLat,
-                lng: pLng,
-                address: res.address,
-                rating: res.rating,
-                userRatingCount: res.userRatingCount,
-                openNow: res.openNow ?? res.isOpen,
-                isOpen: res.openNow ?? res.isOpen,
-                businessStatus: res.businessStatus,
-                distanceFromRouteMeters: distFromRoute,
-                distanceFromCurrentRoutePointMeters: distFromSample,
-                estimatedDetourMeters,
-                estimatedDetourSeconds,
-                rankScore,
-                phone: res.phone,
-                website: res.website,
-                types: res.types,
-              });
-            }
-          }
-        }
+        return { sample, rawResults };
       } catch (err) {
         logger.warn(`Failed searching places at sample (${sample.lat}, ${sample.lng}): ${err}`);
+        return { sample, rawResults: [] };
+      }
+    });
+
+    const settledResults = await Promise.all(sampleQueries);
+
+    for (const { sample, rawResults } of settledResults) {
+      for (const res of rawResults) {
+        if (!placeMap.has(res.placeId)) {
+          const pLat = res.latitude ?? res.lat;
+          const pLng = res.longitude ?? res.lng;
+
+          // Distance from route polyline
+          const distFromRoute = minDistanceToPolyline(pLat, pLng, route.geometry);
+
+          // Filter out places further than corridor radius
+          if (distFromRoute <= corridorRadius) {
+            const estimatedDetourMeters = Math.round(distFromRoute * 2);
+            // Assume 40 km/h in detour/local roads (40,000 m / 3,600 s ≈ 11.1 m/s)
+            const estimatedDetourSeconds = Math.round((estimatedDetourMeters / 1000 / 40) * 3600);
+
+            const rankScore = this.calculatePlaceRank({
+              distanceFromRouteMeters: distFromRoute,
+              rating: res.rating,
+              userRatingCount: res.userRatingCount,
+              openNow: res.openNow ?? res.isOpen,
+              category: res.category,
+              maxCorridorRadius: corridorRadius,
+            });
+
+            // Distance from current sample point
+            const distFromSample = haversineDistanceMetres(sample.lat, sample.lng, pLat, pLng);
+
+            placeMap.set(res.placeId, {
+              placeId: res.placeId,
+              name: res.name,
+              category: res.category,
+              categories: res.categories ?? (res.types ? [...res.types] : [res.category]),
+              latitude: pLat,
+              longitude: pLng,
+              lat: pLat,
+              lng: pLng,
+              address: res.address,
+              rating: res.rating,
+              userRatingCount: res.userRatingCount,
+              openNow: res.openNow ?? res.isOpen,
+              isOpen: res.openNow ?? res.isOpen,
+              businessStatus: res.businessStatus,
+              distanceFromRouteMeters: distFromRoute,
+              distanceFromCurrentRoutePointMeters: distFromSample,
+              estimatedDetourMeters,
+              estimatedDetourSeconds,
+              rankScore,
+              phone: res.phone,
+              website: res.website,
+              types: res.types,
+            });
+          }
+        }
       }
     }
 
@@ -303,8 +309,10 @@ export class RoutePlacesService {
       groupedPlaces,
     };
 
-    // Cache the full result for 6 hours
-    await cacheService.set(cacheKey, fullResult, CACHE_TTL.PLACES);
+    // Cache the full result only if places were successfully found
+    if (allPlaces.length > 0) {
+      await cacheService.set(cacheKey, fullResult, CACHE_TTL.PLACES);
+    }
 
     return {
       ...fullResult,

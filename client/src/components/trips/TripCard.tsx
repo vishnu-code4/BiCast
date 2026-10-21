@@ -1,9 +1,9 @@
 // ============================================================
 // BiCAST Trip Card Component
-// Mobile-friendly card displaying saved journey configuration,
-// metrics, freshness status, and rider actions.
+// Bento-styled interactive card displaying saved journey configuration,
+// metrics, route visual pill, and action buttons.
 // ============================================================
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Calendar,
@@ -75,19 +75,19 @@ export default function TripCard({ trip, onDeleteRequest }: TripCardProps) {
   };
 
   return (
-    <div className="glass rounded-2xl p-5 border border-white/10 hover:border-white/20 transition-all duration-200 flex flex-col justify-between group">
+    <div className="bento-tile-interactive h-full flex flex-col justify-between group">
       <div className="space-y-3.5">
         {/* Top Badges & Status */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusBadge.bgColor} ${statusBadge.textColor} ${statusBadge.borderColor}`}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusBadge.bgColor} ${statusBadge.textColor} ${statusBadge.borderColor}`}
             >
               {statusBadge.label}
             </span>
 
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${freshnessBadge.bgColor} ${freshnessBadge.textColor} ${freshnessBadge.borderColor}`}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${freshnessBadge.bgColor} ${freshnessBadge.textColor} ${freshnessBadge.borderColor}`}
             >
               {freshnessBadge.label}
             </span>
@@ -100,58 +100,77 @@ export default function TripCard({ trip, onDeleteRequest }: TripCardProps) {
           )}
         </div>
 
-        {/* Trip Title & Route Header */}
+        {/* Trip Title */}
         <div>
           <Link
             to={`/trips/${trip.id}`}
-            className="text-base font-bold text-white group-hover:text-brand-300 transition-colors line-clamp-1"
+            className="text-base font-bold text-white group-hover:text-brand-300 transition-colors line-clamp-1 leading-snug"
+            title={trip.name}
           >
             {trip.name}
           </Link>
+        </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-white/60 mt-1">
-            <span className="font-medium text-white/90 truncate max-w-[120px]">
-              {trip.startLocation.name.split(',')[0]}
+        {/* Styled Route Visual Pill */}
+        <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-2.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-white">
+            {/* Origin */}
+            <span
+              className="flex items-center gap-1.5 truncate max-w-[120px]"
+              title={trip.startLocation.name}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-sm shadow-emerald-500/50" />
+              <span className="truncate">{trip.startLocation.name.split(',')[0]}</span>
             </span>
-            <span className="text-white/30">→</span>
-            <span className="font-medium text-white/90 truncate max-w-[120px]">
-              {trip.destination.name.split(',')[0]}
+
+            {/* Dashed connector line with optional +N stops badge */}
+            <div className="flex-1 mx-2 relative flex items-center justify-center">
+              <div className="w-full border-t border-dashed border-white/20" />
+              {trip.stopsCount > 0 && (
+                <span className="absolute bg-surface-800 border border-white/10 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-amber-300 shrink-0 shadow-sm">
+                  +{trip.stopsCount}
+                </span>
+              )}
+            </div>
+
+            {/* Destination */}
+            <span
+              className="flex items-center gap-1.5 truncate max-w-[120px] justify-end"
+              title={trip.destination.name}
+            >
+              <span className="truncate">{trip.destination.name.split(',')[0]}</span>
+              <span className="w-2 h-2 rounded-full bg-rose-400 shrink-0 shadow-sm shadow-rose-500/50" />
             </span>
-            {trip.stopsCount > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/10 text-white/70">
-                +{trip.stopsCount} stops
-              </span>
-            )}
           </div>
         </div>
 
         {/* Schedule Row */}
         <div className="flex items-center gap-4 text-xs text-white/50 border-t border-b border-white/5 py-2">
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1.5">
             <Calendar size={13} className="text-brand-400" />
-            {trip.journeyDate}
+            <span>{trip.journeyDate}</span>
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1.5">
             <Clock size={13} className="text-brand-400" />
-            {trip.departureTime}
+            <span>{trip.departureTime}</span>
           </span>
         </div>
 
-        {/* Metrics Grid */}
+        {/* 3-Column Metrics Row */}
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           {/* Distance */}
-          <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-[10px] text-white/40 block">Distance</span>
-            <span className="font-bold text-white">
+          <div className="bento-subtile p-2 rounded-xl space-y-0.5">
+            <span className="text-[10px] text-white/40 block uppercase font-semibold">Distance</span>
+            <span className="font-bold text-white text-xs block">
               {trip.distanceKm ? `${trip.distanceKm} km` : '—'}
             </span>
           </div>
 
-          {/* Safety / Risk */}
-          <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-[10px] text-white/40 block">Safety</span>
+          {/* Safety */}
+          <div className="bento-subtile p-2 rounded-xl space-y-0.5">
+            <span className="text-[10px] text-white/40 block uppercase font-semibold">Safety</span>
             <span
-              className={`font-bold ${
+              className={`font-bold text-xs block ${
                 trip.safetyScore != null
                   ? trip.safetyScore >= 80
                     ? 'text-emerald-400'
@@ -165,10 +184,10 @@ export default function TripCard({ trip, onDeleteRequest }: TripCardProps) {
             </span>
           </div>
 
-          {/* Fuel Required */}
-          <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-[10px] text-white/40 block">Fuel</span>
-            <span className="font-bold text-brand-300">
+          {/* Fuel */}
+          <div className="bento-subtile p-2 rounded-xl space-y-0.5">
+            <span className="text-[10px] text-white/40 block uppercase font-semibold">Fuel</span>
+            <span className="font-bold text-brand-300 text-xs block">
               {trip.fuelRequiredLitres ? `${trip.fuelRequiredLitres.toFixed(1)} L` : '—'}
             </span>
           </div>
@@ -176,13 +195,13 @@ export default function TripCard({ trip, onDeleteRequest }: TripCardProps) {
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between gap-1.5 pt-4 mt-3 border-t border-white/5">
+      <div className="flex items-center justify-between gap-1.5 pt-3.5 mt-3 border-t border-white/5">
         <Link
           to={`/trips/${trip.id}`}
-          className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+          className="bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 border border-brand-500/30 text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-semibold transition-all shadow-sm group-hover:border-brand-500/50"
         >
           <ExternalLink size={13} />
-          Details
+          <span>View Details</span>
         </Link>
 
         <div className="flex items-center gap-1">

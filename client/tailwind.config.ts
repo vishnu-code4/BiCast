@@ -4,6 +4,10 @@ const config: Config = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+        '2xl': '1440px',
+      },
       colors: {
         brand: {
           50: '#fff7ed',
@@ -35,6 +39,8 @@ const config: Config = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'hero-gradient':
           'linear-gradient(135deg, #0f0f13 0%, #1c1c27 50%, #16161d 100%)',
+        'bento-surface':
+          'linear-gradient(165deg, rgba(34, 34, 47, 0.75) 0%, rgba(22, 22, 29, 0.88) 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out',
@@ -60,6 +66,10 @@ const config: Config = {
         'glow-orange': '0 0 20px rgba(249, 115, 22, 0.3)',
         'glow-blue': '0 0 20px rgba(59, 130, 246, 0.3)',
         glass: '0 4px 24px rgba(0, 0, 0, 0.4)',
+        bento:
+          '0 8px 30px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.12)',
+        'bento-hover':
+          '0 14px 36px -6px rgba(0, 0, 0, 0.65), 0 0 24px -4px rgba(249, 115, 22, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.2)',
       },
     },
   },

@@ -1,6 +1,7 @@
 // ============================================================
 // BiCAST Saved Trips Page (/saved-trips)
 // Displays persistent ride plans with filtering, search, and trip actions
+// Responsive Bento Grid Layout System
 // ============================================================
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -69,7 +70,7 @@ export default function SavedTripsPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in space-y-8">
+    <div className="page-container py-8 sm:py-10 animate-fade-in space-y-8 min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -88,7 +89,7 @@ export default function SavedTripsPage() {
         <Link
           to="/plan"
           id="saved-trips-plan-new-btn"
-          className="btn-primary py-2.5 px-4 text-xs sm:text-sm font-semibold flex items-center gap-2 self-start sm:self-auto shadow-lg"
+          className="btn-primary py-2.5 px-4 text-xs sm:text-sm font-semibold flex items-center gap-2 self-start sm:self-auto shadow-bento hover:shadow-bento-hover"
         >
           <Plus size={16} />
           Plan New Ride
@@ -96,7 +97,7 @@ export default function SavedTripsPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="glass rounded-2xl p-4 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bento-tile p-4 flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Status Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
           {tabs.map((tab) => (
@@ -136,7 +137,7 @@ export default function SavedTripsPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-3 py-1.5 rounded-xl bg-surface-800 border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500"
+            className="px-3 py-1.5 rounded-xl bg-surface-800 border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 cursor-pointer"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -145,14 +146,14 @@ export default function SavedTripsPage() {
         </div>
       </div>
 
-      {/* Trips Content */}
+      {/* Trips Content in Responsive Bento Grid */}
       {isLoading ? (
-        <div className="glass rounded-2xl p-16 text-center">
+        <div className="bento-tile p-16 text-center">
           <Loader2 size={32} className="animate-spin text-brand-400 mx-auto mb-3" />
           <p className="text-white/50 text-sm">Loading your saved trips…</p>
         </div>
       ) : isError ? (
-        <div className="glass rounded-2xl p-12 text-center border-rose-500/20">
+        <div className="bento-tile p-12 text-center border-rose-500/20">
           <p className="text-rose-400 text-sm font-semibold mb-2">
             Could not load saved trips.
           </p>
@@ -161,7 +162,7 @@ export default function SavedTripsPage() {
           </p>
         </div>
       ) : data?.trips && data.trips.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 items-stretch">
           {data.trips.map((trip) => (
             <TripCard
               key={trip.id}
@@ -172,7 +173,7 @@ export default function SavedTripsPage() {
         </div>
       ) : (
         /* Empty State */
-        <div className="glass rounded-2xl p-16 text-center border-dashed border-white/10">
+        <div className="bento-tile p-16 text-center border-dashed border-white/10">
           <div className="w-16 h-16 rounded-2xl bg-surface-800 flex items-center justify-center mx-auto mb-4 text-brand-400">
             <Bookmark size={28} />
           </div>
@@ -187,7 +188,7 @@ export default function SavedTripsPage() {
           <Link
             to="/plan"
             id="empty-plan-trip-cta"
-            className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-xs font-semibold"
+            className="btn-primary inline-flex items-center gap-2 py-2.5 px-5 text-xs font-semibold shadow-bento"
           >
             <Bike size={16} />
             Plan a Ride Now

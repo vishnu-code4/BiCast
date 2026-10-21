@@ -4,14 +4,14 @@
 // ============================================================
 import { useState } from 'react';
 import { FuelInput } from '@/types/fuel';
-import { Fuel, ChevronDown, ChevronUp, Gauge, Sparkles } from 'lucide-react';
+import { Fuel, ChevronDown, ChevronUp, Gauge, Sparkles, Check } from 'lucide-react';
 
 interface FuelSettingsCardProps {
   fuelInput: FuelInput;
   onChangeFuelInput: (newInput: FuelInput) => void;
 }
 
-const BIKE_PRESETS: Array<{
+export const BIKE_PRESETS: Array<{
   name: string;
   mileage: number;
   tank: number;
@@ -44,9 +44,10 @@ export default function FuelSettingsCard({
   };
 
   return (
-    <div className="glass rounded-2xl p-4 border border-white/10 space-y-3 transition-all">
+    <div className="bento-subtile space-y-3 transition-all">
       {/* Header Toggle */}
       <button
+        type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="w-full flex items-center justify-between text-left group"
       >
@@ -58,7 +59,7 @@ export default function FuelSettingsCard({
             <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
               <span>Motorcycle Fuel & Range</span>
               {fuelInput.mileageKmPerLitre > 0 ? (
-                <span className="text-[11px] font-normal text-brand-300 bg-brand-500/10 px-1.5 py-0.5 rounded border border-brand-500/20">
+                <span className="text-[11px] font-bold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30">
                   {fuelInput.mileageKmPerLitre} km/L
                 </span>
               ) : (
@@ -67,7 +68,7 @@ export default function FuelSettingsCard({
             </h3>
             <p className="text-[11px] text-white/40">
               {fuelInput.mileageKmPerLitre > 0
-                ? 'Fuel usage, costs, and refuelling plan calculated'
+                ? 'Consumption, range, and safe refuelling calculated'
                 : 'Enter bike mileage to estimate fuel cost and safe range'}
             </p>
           </div>
@@ -88,16 +89,30 @@ export default function FuelSettingsCard({
               Quick Bike Presets
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-              {BIKE_PRESETS.map((p) => (
-                <button
-                  key={p.name}
-                  onClick={() => applyPreset(p)}
-                  className="px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-left transition-all"
-                >
-                  <p className="text-[11px] font-medium text-white truncate">{p.name}</p>
-                  <p className="text-[10px] text-white/40">{p.mileage} km/L</p>
-                </button>
-              ))}
+              {BIKE_PRESETS.map((p) => {
+                const isSelected = fuelInput.mileageKmPerLitre === p.mileage;
+
+                return (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => applyPreset(p)}
+                    className={`px-2.5 py-2 rounded-xl border text-left transition-all ${
+                      isSelected
+                        ? 'border-brand-500/50 bg-brand-500/10 shadow-sm ring-1 ring-brand-500/30'
+                        : 'bg-white/5 hover:bg-white/10 border-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1">
+                      <p className={`text-[11px] font-medium truncate ${isSelected ? 'text-brand-300 font-bold' : 'text-white'}`}>
+                        {p.name}
+                      </p>
+                      {isSelected && <Check size={11} className="text-brand-400 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-white/40 mt-0.5">{p.mileage} km/L</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

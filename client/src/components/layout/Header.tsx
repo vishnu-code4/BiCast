@@ -8,7 +8,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-surface-900/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="page-container">
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
@@ -30,7 +30,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+          <nav className="hidden md:flex items-center bg-white/[0.04] border border-white/10 rounded-xl p-1 gap-1" aria-label="Main navigation">
             <NavItem to="/" icon={<ChevronRight size={14} />} label="Home" end />
             <NavItem to="/plan" icon={<Map size={14} />} label="Plan a Ride" />
             <NavItem to="/saved-trips" icon={<Bookmark size={14} />} label="Saved Trips" />

@@ -128,7 +128,9 @@ export class CachedPlacesProvider implements PlacesProvider {
     }
 
     const res = await this.inner.searchNearby(request);
-    await cacheService.set(key, res, CACHE_TTL.PLACES);
+    if (res && res.length > 0) {
+      await cacheService.set(key, res, CACHE_TTL.PLACES);
+    }
     return res;
   }
 
