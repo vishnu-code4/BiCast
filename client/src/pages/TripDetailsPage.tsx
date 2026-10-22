@@ -497,14 +497,14 @@ export default function TripDetailsPage() {
 
             {/* Vertical timeline spine */}
             <div className="relative pl-6 space-y-3">
-              {/* Connected vertical track line */}
-              <div
-                className="absolute left-[9px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-emerald-400 via-amber-400 to-rose-400 rounded-full opacity-60"
-                aria-hidden="true"
-              />
-
               {/* Origin A */}
               <div className="relative flex items-start gap-3 bento-subtile p-3 rounded-xl border-white/5">
+                {/* Visual Connector Spine Line to Next Stop */}
+                <div
+                  className="absolute -left-4 top-3 -bottom-3 w-0.5 bg-gradient-to-b from-emerald-400 to-amber-400 rounded-full opacity-60"
+                  aria-hidden="true"
+                />
+
                 <div className="absolute -left-6 top-3 w-4 h-4 rounded-full bg-surface-900 border-2 border-emerald-400 flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 </div>
@@ -525,6 +525,12 @@ export default function TripDetailsPage() {
                   key={s.id || idx}
                   className="relative flex items-start gap-3 bento-subtile p-3 rounded-xl border-white/5"
                 >
+                  {/* Visual Connector Spine Line */}
+                  <div
+                    className="absolute -left-4 top-0 -bottom-3 w-0.5 bg-gradient-to-b from-amber-400 via-amber-400 to-rose-400 rounded-full opacity-60"
+                    aria-hidden="true"
+                  />
+
                   <div className="absolute -left-6 top-3 w-4 h-4 rounded-full bg-surface-900 border-2 border-amber-400 flex items-center justify-center">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   </div>
@@ -544,6 +550,12 @@ export default function TripDetailsPage() {
 
               {/* Destination B */}
               <div className="relative flex items-start gap-3 bento-subtile p-3 rounded-xl border-rose-500/20">
+                {/* Visual Connector Spine Line terminating at Destination */}
+                <div
+                  className="absolute -left-4 top-0 h-5 w-0.5 bg-rose-400 rounded-full opacity-60"
+                  aria-hidden="true"
+                />
+
                 <div className="absolute -left-6 top-3 w-4 h-4 rounded-full bg-surface-900 border-2 border-rose-400 flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                 </div>

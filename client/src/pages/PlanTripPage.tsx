@@ -545,14 +545,14 @@ export default function PlanTripPage() {
 
             {/* Vertical Connector Spine & Locations */}
             <div className="relative pl-6 space-y-4">
-              {/* Visual Vertical Spine Line */}
-              <div
-                className="absolute left-2 top-3 bottom-3 w-0.5 bg-gradient-to-b from-emerald-400 via-amber-400 to-rose-400 rounded-full opacity-60"
-                aria-hidden="true"
-              />
-
               {/* Origin (A) with Emerald Dot */}
               <div className="relative space-y-1.5">
+                {/* Visual Connector Spine Line to Next Stop */}
+                <div
+                  className="absolute -left-4 top-3 -bottom-4 w-0.5 bg-gradient-to-b from-emerald-400 to-amber-400 rounded-full opacity-60"
+                  aria-hidden="true"
+                />
+
                 <div className="absolute -left-6 top-3 w-4 h-4 rounded-full bg-surface-900 border-2 border-emerald-400 flex items-center justify-center shadow-glow-blue">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 </div>
@@ -611,6 +611,12 @@ export default function PlanTripPage() {
 
               {/* Intermediate Stops Summary Preview / Amber Node */}
               <div className="relative">
+                {/* Visual Connector Spine Line to Destination */}
+                <div
+                  className="absolute -left-4 top-0 -bottom-4 w-0.5 bg-gradient-to-b from-amber-400 via-amber-400 to-rose-400 rounded-full opacity-60"
+                  aria-hidden="true"
+                />
+
                 <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-surface-900 border-2 border-amber-400 flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                 </div>
@@ -661,6 +667,12 @@ export default function PlanTripPage() {
 
               {/* Destination (B) with Rose Dot */}
               <div className="relative space-y-1.5 pb-1">
+                {/* Visual Connector Spine Line terminating cleanly at Destination Dot */}
+                <div
+                  className="absolute -left-4 top-0 h-5 w-0.5 bg-rose-400 rounded-full opacity-60"
+                  aria-hidden="true"
+                />
+
                 <div className="absolute -left-6 top-3 w-4 h-4 rounded-full bg-surface-900 border-2 border-rose-400 flex items-center justify-center shadow-glow-orange">
                   <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                 </div>
@@ -728,15 +740,17 @@ export default function PlanTripPage() {
                 Departure Timing
               </h2>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start">
                 <div className="space-y-1">
-                  <label htmlFor="dep-date" className="section-label text-[11px]">Journey Date</label>
+                  <div className="flex items-center justify-between h-5">
+                    <label htmlFor="dep-date" className="section-label text-[11px]">Journey Date</label>
+                  </div>
                   <div className="relative">
                     <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
                     <input
                       id="dep-date"
                       type="date"
-                      className="input pl-9 text-sm"
+                      className="input pl-9 pr-3 text-sm h-10 py-2 w-full flex items-center"
                       value={departureDate}
                       onChange={(e) => handleDepartureChange(e.target.value, departureTime)}
                     />
@@ -744,7 +758,7 @@ export default function PlanTripPage() {
                 </div>
 
                 <div className="space-y-1 relative" ref={timeDropdownRef}>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between h-5">
                     <label htmlFor="dep-time-trigger" className="section-label text-[11px]">Departure Time</label>
                     <button
                       type="button"
@@ -760,7 +774,7 @@ export default function PlanTripPage() {
                       id="dep-time-trigger"
                       type="button"
                       onClick={() => setIsTimeDropdownOpen((prev) => !prev)}
-                      className="input flex items-center justify-between text-left text-sm cursor-pointer hover:border-brand-500/50 hover:bg-white/[0.07] transition-all duration-200 group w-full pl-3 pr-2.5 py-2"
+                      className="input flex items-center justify-between text-left text-sm cursor-pointer hover:border-brand-500/50 hover:bg-white/[0.07] transition-all duration-200 group w-full pl-3 pr-2.5 h-10 py-2"
                       aria-expanded={isTimeDropdownOpen}
                       aria-haspopup="true"
                     >
@@ -1011,23 +1025,28 @@ export default function PlanTripPage() {
           Stage 2: Post-Calculation Full-Width Bento Intelligence Dashboard
           ============================================================ */}
       {routes.length > 0 && activeRoute && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 lg:gap-6 mt-6 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 lg:gap-6 mt-6 animate-slide-up items-start">
           {/* Bento Tile A: Safety Score Badge & Active Route Summary Metrics */}
-          <div className="md:col-span-2 lg:col-span-4 bento-tile flex flex-col justify-between">
-            <div className="space-y-4">
-              <SafetyScoreBadge
-                analysis={riskAnalyses[selectedRouteId] ?? null}
-                isLoading={isRiskLoading}
-              />
-              <ActiveRouteSummaryMetrics
-                route={activeRoute}
-                fuelPlan={fuelPlans[selectedRouteId]}
-              />
+          <div className="md:col-span-2 lg:col-span-4 bento-tile flex flex-col gap-3">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/10">
+              <ShieldCheck size={18} className="text-emerald-400" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Safety & Corridor Metrics
+              </h3>
             </div>
+            <SafetyScoreBadge
+              analysis={riskAnalyses[selectedRouteId] ?? null}
+              isLoading={isRiskLoading}
+              embedded
+            />
+            <ActiveRouteSummaryMetrics
+              route={activeRoute}
+              fuelPlan={fuelPlans[selectedRouteId]}
+            />
           </div>
 
           {/* Bento Tile B: Safety Advisories & Alerts Stack */}
-          <div className="md:col-span-1 lg:col-span-4 bento-tile flex flex-col gap-3.5">
+          <div className="md:col-span-1 lg:col-span-4 bento-tile flex flex-col gap-3">
             <div className="flex items-center gap-2 pb-2 border-b border-white/10">
               <ShieldCheck size={18} className="text-brand-400" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -1035,37 +1054,39 @@ export default function PlanTripPage() {
               </h3>
             </div>
 
-            {riskAnalyses[selectedRouteId]?.alerts && riskAnalyses[selectedRouteId]!.alerts.length > 0 ? (
-              <WeatherAlertsBanner alerts={riskAnalyses[selectedRouteId]!.alerts} />
-            ) : (
-              <div className="bento-subtile border-emerald-500/25 bg-emerald-500/5 p-4 rounded-xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                  <ShieldCheck size={20} />
+            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
+              {riskAnalyses[selectedRouteId]?.alerts && riskAnalyses[selectedRouteId]!.alerts.length > 0 ? (
+                <WeatherAlertsBanner alerts={riskAnalyses[selectedRouteId]!.alerts} />
+              ) : (
+                <div className="bento-subtile border-emerald-500/25 bg-emerald-500/5 p-4 rounded-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Clear Riding Conditions</p>
+                    <p className="text-[11px] text-emerald-300/80 mt-0.5">
+                      No severe weather hazards or active road warnings detected on this route. Safe riding!
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-white">Clear Riding Conditions</p>
-                  <p className="text-[11px] text-emerald-300/80 mt-0.5">
-                    No severe weather hazards or active road warnings detected on this route. Safe riding!
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
 
-            {riskAnalyses[selectedRouteId]?.recommendations && riskAnalyses[selectedRouteId]!.recommendations.length > 0 && (
-              <RiderRecommendationsCard
-                recommendations={riskAnalyses[selectedRouteId]!.recommendations}
-              />
-            )}
+              {riskAnalyses[selectedRouteId]?.recommendations && riskAnalyses[selectedRouteId]!.recommendations.length > 0 && (
+                <RiderRecommendationsCard
+                  recommendations={riskAnalyses[selectedRouteId]!.recommendations}
+                />
+              )}
 
-            {riskAnalyses[selectedRouteId]?.checkpoints && riskAnalyses[selectedRouteId]!.checkpoints.length > 0 && (
-              <RiskFactorBreakdown
-                checkpoints={riskAnalyses[selectedRouteId]!.checkpoints}
-              />
-            )}
+              {riskAnalyses[selectedRouteId]?.checkpoints && riskAnalyses[selectedRouteId]!.checkpoints.length > 0 && (
+                <RiskFactorBreakdown
+                  checkpoints={riskAnalyses[selectedRouteId]!.checkpoints}
+                />
+              )}
+            </div>
           </div>
 
           {/* Bento Tile C: Fuel Intelligence Stack or Bike Preset Prompt */}
-          <div className="md:col-span-1 lg:col-span-4 bento-tile flex flex-col gap-3.5">
+          <div className="md:col-span-1 lg:col-span-4 bento-tile flex flex-col gap-3">
             <div className="flex items-center gap-2 pb-2 border-b border-white/10">
               <Fuel size={18} className="text-amber-400" />
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">
@@ -1074,9 +1095,10 @@ export default function PlanTripPage() {
             </div>
 
             {fuelPlans[selectedRouteId]?.calculation?.mileageKmPerLitre && fuelPlans[selectedRouteId]!.calculation.mileageKmPerLitre > 0 ? (
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 <FuelSummaryCard
                   calculation={fuelPlans[selectedRouteId]!.calculation}
+                  embedded
                 />
 
                 {fuelPlans[selectedRouteId]!.recommendations.length > 0 && (
@@ -1084,6 +1106,7 @@ export default function PlanTripPage() {
                     recommendations={fuelPlans[selectedRouteId]!.recommendations}
                     currentStops={stops}
                     onAddStationAsStop={handleAddStationAsStop}
+                    embedded
                   />
                 )}
               </div>

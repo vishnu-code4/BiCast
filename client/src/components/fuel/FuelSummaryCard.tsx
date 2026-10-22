@@ -13,9 +13,15 @@ import { Fuel, Gauge, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface FuelSummaryCardProps {
   calculation: FuelCalculation;
+  embedded?: boolean;
+  className?: string;
 }
 
-export default function FuelSummaryCard({ calculation }: FuelSummaryCardProps) {
+export default function FuelSummaryCard({
+  calculation,
+  embedded = false,
+  className = '',
+}: FuelSummaryCardProps) {
   const badge = getFuelStatusBadge(calculation.status);
 
   // Calculate percentage of route covered by usable range
@@ -24,7 +30,7 @@ export default function FuelSummaryCard({ calculation }: FuelSummaryCardProps) {
   const coveragePercent = Math.min(100, Math.round((usableRange / distance) * 100));
 
   return (
-    <div className="bento-tile space-y-4">
+    <div className={embedded ? `space-y-3 ${className}` : `bento-tile space-y-4 ${className}`}>
       {/* Header & Status Badge */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">

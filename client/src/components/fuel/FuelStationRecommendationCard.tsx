@@ -11,12 +11,16 @@ interface FuelStationRecommendationCardProps {
   recommendations: FuelStationRecommendation[];
   currentStops?: LocationInput[];
   onAddStationAsStop: (station: FuelStationRecommendation) => void;
+  embedded?: boolean;
+  className?: string;
 }
 
 export default function FuelStationRecommendationCard({
   recommendations,
   currentStops = [],
   onAddStationAsStop,
+  embedded = false,
+  className = '',
 }: FuelStationRecommendationCardProps) {
   if (!recommendations || recommendations.length === 0) return null;
 
@@ -24,24 +28,24 @@ export default function FuelStationRecommendationCard({
   const topStations = recommendations.slice(0, 4);
 
   return (
-    <div className="bento-tile space-y-3.5">
+    <div className={embedded ? `space-y-3 pt-3 border-t border-white/10 ${className}` : `bento-tile space-y-3.5 ${className}`}>
       <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
-            <Fuel size={16} />
+          <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            <Fuel size={14} />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white">Recommended Fuel Stops</h4>
-            <p className="text-[10px] text-white/40">Reachable before hitting fuel reserve</p>
+            <h4 className="text-xs sm:text-sm font-bold text-white">Recommended Fuel Stops</h4>
+            <p className="text-[10px] text-white/40">Reachable before reserve limit</p>
           </div>
         </div>
         <span className="text-[10px] font-semibold text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20">
-          {recommendations.length} {recommendations.length === 1 ? 'Station' : 'Stations'} Located
+          {recommendations.length} {recommendations.length === 1 ? 'Station' : 'Stations'}
         </span>
       </div>
 
       {/* Responsive Grid with Aligned Bottom CTA */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {topStations.map((station) => {
           const isAlreadyAdded = currentStops.some(
             (s) =>
@@ -53,34 +57,34 @@ export default function FuelStationRecommendationCard({
           return (
             <div
               key={station.placeId}
-              className="bento-subtile p-3.5 rounded-2xl flex flex-col justify-between space-y-3 transition-all hover:border-white/20"
+              className="bento-subtile p-3 rounded-xl flex flex-col justify-between space-y-2 transition-all hover:border-white/20"
             >
               {/* Upper Details */}
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1.5">
+                <div className="flex items-start justify-between gap-1.5">
                   <div className="min-w-0">
-                    <h5 className="text-xs font-bold text-white truncate flex items-center gap-1.5">
+                    <h5 className="text-xs font-bold text-white truncate flex items-center gap-1">
                       <span className="text-amber-400">⛽</span>
                       <span className="truncate">{station.name}</span>
                     </h5>
                     {station.address && (
-                      <p className="text-[11px] text-white/40 truncate flex items-center gap-1 mt-0.5">
-                        <MapPin size={10} className="shrink-0 text-white/30" />
+                      <p className="text-[10px] text-white/40 truncate flex items-center gap-1 mt-0.5">
+                        <MapPin size={9} className="shrink-0 text-white/30" />
                         <span className="truncate">{station.address}</span>
                       </p>
                     )}
                   </div>
 
                   {station.rating != null && (
-                    <div className="flex items-center gap-0.5 text-[11px] text-amber-400 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20 shrink-0">
-                      <Star size={10} className="fill-amber-400" />
+                    <div className="flex items-center gap-0.5 text-[10px] text-amber-400 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20 shrink-0">
+                      <Star size={9} className="fill-amber-400" />
                       <span>{station.rating.toFixed(1)}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Station metrics 3-col pill */}
-                <div className="grid grid-cols-3 gap-1.5 text-[10px] bg-black/30 p-2 rounded-xl border border-white/5 text-center">
+                <div className="grid grid-cols-3 gap-1 text-[9px] bg-black/30 p-1.5 rounded-lg border border-white/5 text-center">
                   <div>
                     <span className="text-white/40 block">From Start</span>
                     <span className="font-bold text-white">{station.distanceFromStartKm} km</span>
@@ -88,7 +92,7 @@ export default function FuelStationRecommendationCard({
                   <div>
                     <span className="text-white/40 block">ETA</span>
                     <span className="font-bold text-white flex items-center justify-center gap-0.5">
-                      <Clock size={9} className="text-white/40" />
+                      <Clock size={8} className="text-white/40" />
                       {new Date(station.estimatedArrivalTime).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -111,21 +115,21 @@ export default function FuelStationRecommendationCard({
                 type="button"
                 onClick={() => onAddStationAsStop(station)}
                 disabled={isAlreadyAdded}
-                className={`w-full py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                className={`w-full py-1.5 px-2.5 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 transition-all shadow-sm ${
                   isAlreadyAdded
                     ? 'bg-white/5 text-white/40 cursor-not-allowed border border-white/10'
-                    : 'bg-brand-500 hover:bg-brand-400 text-white font-bold shadow-glow-orange hover:shadow-lg active:scale-95'
+                    : 'bg-brand-500 hover:bg-brand-400 text-white font-bold shadow-glow-orange hover:shadow-md active:scale-95'
                 }`}
               >
                 {isAlreadyAdded ? (
                   <>
-                    <Check size={14} className="text-emerald-400" />
-                    <span>Added as Route Stop</span>
+                    <Check size={12} className="text-emerald-400" />
+                    <span>Added as Stop</span>
                   </>
                 ) : (
                   <>
-                    <Plus size={14} />
-                    <span>Add Fuel Station as Stop</span>
+                    <Plus size={12} />
+                    <span>Add as Stop</span>
                   </>
                 )}
               </button>

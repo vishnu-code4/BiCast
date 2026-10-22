@@ -9,12 +9,19 @@ import { getRiskLevelBadge } from '@/services/riskService';
 interface SafetyScoreBadgeProps {
   analysis: RouteRiskAnalysis | null;
   isLoading?: boolean;
+  embedded?: boolean;
+  className?: string;
 }
 
-export default function SafetyScoreBadge({ analysis, isLoading }: SafetyScoreBadgeProps) {
+export default function SafetyScoreBadge({
+  analysis,
+  isLoading,
+  embedded = false,
+  className = '',
+}: SafetyScoreBadgeProps) {
   if (isLoading) {
     return (
-      <div className="bento-tile animate-pulse flex items-center justify-between h-full">
+      <div className={`animate-pulse flex items-center justify-between ${embedded ? 'bento-subtile p-4' : 'bento-tile'} ${className}`}>
         <div className="space-y-2">
           <div className="h-4 bg-white/10 rounded w-24"></div>
           <div className="h-7 bg-white/10 rounded w-36"></div>
@@ -54,7 +61,11 @@ export default function SafetyScoreBadge({ analysis, isLoading }: SafetyScoreBad
 
   return (
     <div
-      className={`bento-tile h-full flex flex-col justify-between border ${badge.borderClass} ${badge.bgClass} relative overflow-hidden transition-all shadow-bento`}
+      className={`${
+        embedded
+          ? 'bento-subtile p-3.5 sm:p-4 rounded-xl'
+          : 'bento-tile'
+      } border ${badge.borderClass} ${badge.bgClass} relative overflow-hidden transition-all shadow-sm ${className}`}
     >
       {/* Background glow accent */}
       <div
